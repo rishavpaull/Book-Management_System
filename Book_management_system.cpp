@@ -1,14 +1,13 @@
-
 #include <iostream>
 #include <conio.h>
+#include <ctime> // for handling dates
 using namespace std;
-//Base Class
+
 class bookVAR
 {
 public:
     int book_id, price, pages;
     string name, aut, pub;
-    //Constructor
     bookVAR()
     {
         book_id = 0;
@@ -18,31 +17,30 @@ public:
         price = 0;
         pages = 0;
     }
-    //Destructor
-    ~bookVAR(){}
-    //Virtual Function 
+    ~bookVAR() {}
     virtual void menu() {}
-    //Friend FUnction declaration
     friend void showBook(bookVAR);
-    //Oparator Overloading declaration
-    friend bool operator ==(bookVAR,bookVAR);
-
+    friend bool operator==(bookVAR, bookVAR);
 } b[500];
-//Derived Class
+
 class bookFUNC : public bookVAR
 {
 
 public:
-    //Static Variable
     static int i;
-    //Inline Function
     inline void menu();
     inline void add();
     inline void search();
     inline void update();
     inline void del();
     inline void show();
+    inline void borrowBook();
+    inline void returnBook();
+    inline double calculateFine(int daysLate);
 };
+
+int bookFUNC::i;
+
 void bookFUNC::menu()
 {
 p:
@@ -54,7 +52,9 @@ p:
     cout << "\n\n 3. Update Book ";
     cout << "\n\n 4. Delete Book ";
     cout << "\n\n 5. Show Books ";
-    cout << "\n\n 6. Exit ";
+    cout << "\n\n 6. Borrow Book ";
+    cout << "\n\n 7. Return Book ";
+    cout << "\n\n 8. Exit ";
     cout << "\n\n : ";
     cin >> choice;
     switch (choice)
@@ -75,6 +75,12 @@ p:
         show();
         break;
     case 6:
+        borrowBook();
+        break;
+    case 7:
+        returnBook();
+        break;
+    case 8:
         exit(0);
     default:
         cout << "\n\n Invalid choice....Please try again....";
@@ -82,9 +88,10 @@ p:
     getch();
     goto p;
 }
-//Operator Overloading definition
-bool operator ==(bookVAR book1,bookVAR book2){
-    if(book1.book_id==book2.book_id)
+
+bool operator==(bookVAR book1, bookVAR book2)
+{
+    if (book1.book_id == book2.book_id)
     {
         return true;
     }
@@ -103,19 +110,25 @@ p:
     cin >> b[i].book_id;
     for (int a = 0; a < i; a++)
     {
-        if (operator ==(b[a],b[i]))
+        if (operator==(b[a], b[i]))
         {
             cout << "\n\n Book ID Already Exist....";
             getch();
             goto p;
         }
     }
+    
+    cin.ignore();
     cout << "\n\nEnter Book Name : ";
-    cin >> b[i].name;
-    cout << "\n\nEnter Author Name : ";
-    cin >> b[i].aut;
-    cout << "\n\nEnter Publisher Name : ";
-    cin >> b[i].pub;
+getline(cin, b[i].name);
+
+cout << "\n\nEnter Author Name : ";
+getline(cin, b[i].aut);
+
+cout << "\n\nEnter Publisher Name : ";
+getline(cin, b[i].pub);
+
+
     cout << "\n\nEnter Pages : ";
     cin >> b[i].pages;
     cout << "\n\nEnter Price : ";
@@ -123,6 +136,7 @@ p:
     cout << "\n\n\n\t\t New Book Added Successfully....";
     i++;
 }
+
 void bookFUNC::search()
 {
     system("cls");
@@ -247,7 +261,8 @@ void bookFUNC::search()
         }
     }
 }
-void bookFUNC ::update()
+
+void bookFUNC::update()
 {
     system("cls");
     int id, found = 0;
@@ -291,6 +306,7 @@ void bookFUNC ::update()
         }
     }
 }
+
 void bookFUNC::del()
 {
     system("cls");
@@ -329,27 +345,118 @@ void bookFUNC::del()
         }
     }
 }
+
 void bookFUNC::show()
 {
-    system("cls");
-    cout << "\n\n--------------------------Book Management System--------------------------";
+    while (true) {
+        system("cls");
+        cout << "\n\n--------------------------Book Management System--------------------------";
 
-    if (i == 0)
-    {
-        cout << "\nIn Data Base is Empty....";
-    }
-    else
-    {
-        for (int a = 0; a < i; a++)
-        {
-            showBook(b[a]);
+        if (i == 0) {
+            char choice;
+            cout << "\nIn Data Base is Empty....";
+            cout << "\n\nWould you like to add a book? (y/n): ";
+            cin >> choice;
+            if (choice == 'y' || choice == 'Y') {
+                add(); // Adding a book
+            }
+            else {
+                break; // Exit the loop if the user doesn't want to add more books
+            }
+        }
+        else {
+            for (int a = 0; a < i; a++) {
+                showBook(b[a]);
+            }
+            break; // Exit the loop if books are already added and displayed
         }
     }
 }
-//Static Variable 
-int bookFUNC ::i;
 
-//Friend Function Definition
+//New Fetures added for borrowing and returning book.
+void bookFUNC::borrowBook()
+{
+    system("cls");
+    int id, found = 0;
+    cout << "\n\n--------------------------Book Borrowing System--------------------------";
+    if (i == 0)
+    {
+        cout << "\n\n Data Base is Empty...";
+    }
+    else
+    {
+        cout << "\n\nEnter Book ID to Borrow : ";
+        cin >> id;
+        for (int a = 0; a < i; a++)
+        {
+            if (id == b[a].book_id)
+            {
+                system("cls");
+                cout << "\n\n--------------------------Book Borrowing System--------------------------";
+                cout << "\n\n Book Id : " << b[a].book_id;
+                cout << "\n\n Book Name : " << b[a].name;
+                cout << "\n\n Author Name : " << b[a].aut;
+                cout << "\n\n Publisher Name : " << b[a].pub;
+                cout << "\n\n Pages : " << b[a].pages;
+                cout << "\n\n Price : " << b[a].price;
+                cout << "\n\n\n\t Book Borrowed Successfully...";
+                found++;
+            }
+        }
+        if (found == 0)
+        {
+            cout << "\n\n Book ID not found...";
+        }
+    }
+}
+
+void bookFUNC::returnBook()
+{
+    system("cls");
+    int id, found = 0;
+    cout << "\n\n--------------------------Book Returning System--------------------------";
+    if (i == 0)
+    {
+        cout << "\n\n Data Base is Empty...";
+    }
+    else
+    {
+        cout << "\n\nEnter Book ID to Return : ";
+        cin >> id;
+        for (int a = 0; a < i; a++)
+        {
+            if (id == b[a].book_id)
+            {
+                system("cls");
+                cout << "\n\n--------------------------Book Returning System--------------------------";
+                cout << "\n\n Book Id : " << b[a].book_id;
+                cout << "\n\n Book Name : " << b[a].name;
+                cout << "\n\n Author Name : " << b[a].aut;
+                cout << "\n\n Publisher Name : " << b[a].pub;
+                cout << "\n\n Pages : " << b[a].pages;
+                cout << "\n\n Price : " << b[a].price;
+                int daysLate;
+                cout << "\n\nEnter number of days late (0 if on time): ";
+                cin >> daysLate;
+                double fine = calculateFine(daysLate);
+                cout << "\n\nFine for late return: $" << fine;
+                cout << "\n\n\n\t Book Returned Successfully...";
+                found++;
+            }
+        }
+        if (found == 0)
+        {
+            cout << "\n\n Book ID not found...";
+        }
+    }
+}
+
+double bookFUNC::calculateFine(int daysLate)
+{
+    const double fineRate = 0.50; // Fine rate per day
+    return daysLate * fineRate;
+}
+
 void showBook(bookVAR book)
 {
     cout << "\n\n Book ID : " << book.book_id;
@@ -360,10 +467,10 @@ void showBook(bookVAR book)
     cout << "\n\n Price : " << book.price;
     cout << "\n\n\n===============================";
 }
+
 int main()
 {
-    bookVAR *p;
     bookFUNC obj;
-    p = &obj;
-    p->menu();
+    obj.menu();
+    return 0;
 }
